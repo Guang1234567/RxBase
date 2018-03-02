@@ -1,0 +1,3 @@
+include ':sample', ':rxbase'
+
+rootProject.name = 'RxBase-root'

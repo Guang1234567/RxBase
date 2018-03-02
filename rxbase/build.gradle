@@ -1,0 +1,77 @@
+apply plugin: 'com.android.library'
+apply plugin: 'maven'
+
+android {
+    compileSdkVersion versions.compileSdk
+
+    defaultConfig {
+        minSdkVersion versions.minSdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation rootProject.ext.supportAnnotations
+    testImplementation rootProject.ext.junit
+    androidTestImplementation rootProject.ext.supportTestRunner
+    androidTestImplementation rootProject.ext.supportTestEspresso
+
+
+    api rootProject.ext.rxJava
+    api rootProject.ext.rxAndroid
+    api rootProject.ext.rxBinding
+    api rootProject.ext.sqlbrite
+    api rootProject.ext.supportSqliteFramework
+    api rootProject.ext.supportSqlcipher
+    api rootProject.ext.sqlbrite_sqlcipher_integration
+    api rootProject.ext.supportWcdb
+    api rootProject.ext.sqlbrite_wcdb_integration
+    api rootProject.ext.androidArchViewModel
+    api rootProject.ext.rxlifecycle
+    api rootProject.ext.rxlifecycle_android
+    api rootProject.ext.rxlifecycle_components
+    api rootProject.ext.rxlifecycle_components_preference
+    api rootProject.ext.rxlifecycle_navi
+    api rootProject.ext.rxlifecycle_android_lifecycle
+}
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'rxbase'
+
+    publishedGroupId = 'android.arch.persistence.db.sqlcipher'
+    libraryName = 'rxbase'
+    artifact = 'rxbase'
+
+    libraryDescription = 'A wrapper for Facebook Native Like Button (LikeView) on Android'
+
+    siteUrl = 'https://github.com/Guang1234567/sqlbrite'
+    gitUrl = 'https://github.com/Guang1234567/sqlbrite.git'
+
+    libraryVersion = '1.1.1'
+
+    developerId = 'GG1234567'
+    developerName = 'GG1234567'
+    developerEmail = 'lihansey163@163.com'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+apply from: '../gradle/installv1.gradle'
+apply from: '../gradle/bintrayv1.gradle'
