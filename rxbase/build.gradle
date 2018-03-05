@@ -53,14 +53,14 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'rxbase'
 
-    publishedGroupId = 'android.arch.persistence.db.sqlcipher'
+    publishedGroupId = 'com.gg.rxbase'
     libraryName = 'rxbase'
     artifact = 'rxbase'
 
     libraryDescription = 'A wrapper for Facebook Native Like Button (LikeView) on Android'
 
-    siteUrl = 'https://github.com/Guang1234567/sqlbrite'
-    gitUrl = 'https://github.com/Guang1234567/sqlbrite.git'
+    siteUrl = 'https://github.com/Guang1234567/RxBase'
+    gitUrl = 'https://github.com/Guang1234567/RxBase.git'
 
     libraryVersion = '1.1.1'
 
@@ -68,9 +68,9 @@ ext {
     developerName = 'GG1234567'
     developerEmail = 'lihansey163@163.com'
 
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
+    licenseName = 'The MIT License'
+    licenseUrl = 'https://mit-license.org/'
+    allLicenses = ["MIT"]
 }
 
 apply from: '../gradle/installv1.gradle'

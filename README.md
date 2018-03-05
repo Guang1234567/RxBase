@@ -1,66 +1,93 @@
-# RxRouter
-- Thanks to Rxjava, **RxRouter** is very easy to used. see [Usage](#usage).
-- The router of android for Activity, Fragment, js and everything.
+# RxBase
+- Wrap some **Rx Lib** that i normally use as **Android Library**.
+- Integrate into android app efficiently.
 
 # Download
 
-[ ![Download](https://api.bintray.com/packages/ggg1234567/maven/rxrouter/images/download.svg) ](https://bintray.com/ggg1234567/maven/rxrouter/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/ggg1234567/maven/rxbase/images/download.svg) ](https://bintray.com/ggg1234567/maven/rxbase/_latestVersion)
 
 ```gradle
-implementation 'com.github.router:rxrouter:<newest_verion>'
+implementation 'com.gg.rxbase:rxbase:<newest_verion>'
 ```
-# Usage
 
-1. create Router instance.
+
+
+### UI Component
+
+<details>
+
+<summary>View contents</summary>
+
+* [`RxBaseActivity`](#rxbaseactivity)
+
+- RxBaseActivity
 
 ```java
 
-final Router router = new Router();
+import com.gg.rxbase.ui.RxBaseActivity;
+import com.trello.navi2.Event;
+import com.trello.rxlifecycle2.android.ActivityEvent;
+
+public class XXXActivity extends RxBaseActivity {
+    
+    public XXXActivity() {
         
+            /*
+                no override oncreate() onResume ... if using  super.naviObserve(Event.XXX)
+             */
+        
+            super.naviObserve(Event.CREATE).subscribe(new Consumer<Bundle>() {
+                @Override
+                public void accept(Bundle bundle) throws Exception {
+                    setContentView(R.layout.main);
+                }
+            });
+    
+            // Counter that operates on screen only while resumed; automatically ends itself on destroy
+            super.naviObserve(Event.RESUME)
+                    .flatMap(new Function<Object, Observable<Long>>() {
+    
+                        @Override
+                        public Observable<Long> apply(Object v) {
+                            return Observable.interval(1, TimeUnit.SECONDS)
+                                    .takeUntil(naviObserve(Event.PAUSE));
+                        }
+                    })
+                    .compose(this.<Long>bindUntilEvent(ActivityEvent.DESTROY))
+                    .startWith(-1L)
+                    .observeOn(RxSchedulers.mainThread())
+                    .subscribe(new Consumer<Long>() {
+                        @Override
+                        public void accept(Long count) {
+                        }
+                    });
+        }
+}
+
 ```
 
-2. How to route?
+</details>
 
-- route to activity
+
+### Thread Component
+
+<details>
+
+<summary>View contents</summary>
+
+* [RxSchedulers](#rxschedulers)
+
+- RxSchedulers
 
 ```java
-
-final Uri uri001 = new Uri.Builder().scheme("router").authority("www.mycompany.com").appendPath("second_activity").build();
-router.to(uri001, SecondActivity.class).subscribe();
-
-
-btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // router to activity
-                Intent args = new Intent();
-                args.putExtra("key_aaa", "value_bbb");
-                router.route(v.getContext(), uri001, args);
-            }
-        });
-
+RxSchedulers.mainThread()
+RxSchedulers.io()
+RxSchedulers.single()
+RxSchedulers.newThread()
+RxSchedulers.computation()
+RxSchedulers.trampoline()
+RxSchedulers.from(Looper looper)
+RxSchedulers.from(Executor executor)
 ```
 
-- route to do anything
-
-
-```java
-
-final Object uri002 = new Uri.Builder().scheme("router").authority("www.mycompany.com").appendPath("call_some_method").build();
-router.to(uri002).subscribe(new Consumer<Object>() {
-    @Override
-    public void accept(Object request) throws Exception {
-        showToast(request);
-    }
-});
-
-
-
-btn.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        router.route(uri002);
-    }
-});
-
-```
+</details>
