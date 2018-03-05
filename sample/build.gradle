@@ -26,5 +26,6 @@ dependencies {
     androidTestImplementation rootProject.ext.supportTestRunner
     androidTestImplementation rootProject.ext.supportTestEspresso
 
-    compile project(':rxbase')
+    //compile project(':rxbase')
+    implementation 'com.gg.rxbase:rxbase:1.1.1'
 }

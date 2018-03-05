@@ -4,7 +4,7 @@ buildscript {
 
     ext.versions = [
             'minSdk'    : 15,
-            'compileSdk': 26,
+            'compileSdk': 27,
             'kotlin'    : '1.1.60',
             'lint'      : '26.0.1'
     ]
@@ -21,7 +21,7 @@ buildscript {
         // in the individual module build.gradle files
 
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
     }
 }
 
@@ -30,6 +30,9 @@ allprojects {
         mavenCentral()
         google()
         jcenter()
+        maven {
+            url "https://dl.bintray.com/ggg1234567/maven/"
+        }
     }
 }
 
@@ -39,8 +42,8 @@ task clean(type: Delete) {
 
 ext {
     // Android dependencies.
-    supportV7 = 'com.android.support:appcompat-v7:26.0.2'
-    supportAnnotations = 'com.android.support:support-annotations:26.0.2'
+    supportV7 = 'com.android.support:appcompat-v7:27.1.0'
+    supportAnnotations = 'com.android.support:support-annotations:27.1.0'
     supportTestRunner = 'com.android.support.test:runner:0.5'
     supportTestEspresso = 'com.android.support.test.espresso:espresso-core:3.0.1'
 

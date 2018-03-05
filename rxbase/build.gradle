@@ -75,3 +75,11 @@ ext {
 
 apply from: '../gradle/installv1.gradle'
 apply from: '../gradle/bintrayv1.gradle'
+
+/*uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: "file:///D:/MavenRepository/maven")
+        }
+    }
+}*/
