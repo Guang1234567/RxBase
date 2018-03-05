@@ -20,7 +20,7 @@ implementation 'com.gg.rxbase:rxbase:<newest_verion>'
 
 * [`RxBaseActivity`](#rxbaseactivity)
 
-- RxBaseActivity
+#### RxBaseActivity
 
 ```java
 
@@ -77,7 +77,7 @@ public class XXXActivity extends RxBaseActivity {
 
 * [RxSchedulers](#rxschedulers)
 
-- RxSchedulers
+#### RxSchedulers
 
 ```java
 RxSchedulers.mainThread()
