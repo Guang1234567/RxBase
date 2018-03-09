@@ -1,8 +1,10 @@
-package com.gg.rxbase.lifecycle;
+package com.gg.rxbase;
 
 import android.app.Application;
 import android.support.annotation.NonNull;
 
+import com.gg.rxbase.lifecycle.ApplicationEvent;
+import com.gg.rxbase.lifecycle.RxApplicationLifecycleProviderImpl;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.trello.rxlifecycle2.LifecycleTransformer;
 
@@ -31,9 +33,10 @@ public abstract class RxBaseApplication extends Application implements Lifecycle
     @Override
     public void onTerminate() {
         super.onTerminate();
+        mLifecycleProvider.onNext(ApplicationEvent.TERMINATE);
     }
 
-    protected void terminateAppSafe() {
+    final protected void triggerTerminateEvent() {
         mLifecycleProvider.onNext(ApplicationEvent.TERMINATE);
     }
 

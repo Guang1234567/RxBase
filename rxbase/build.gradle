@@ -47,6 +47,11 @@ dependencies {
     api rootProject.ext.rxlifecycle_components_preference
     api rootProject.ext.rxlifecycle_navi
     api rootProject.ext.rxlifecycle_android_lifecycle
+    api rootProject.ext.okhttp3
+    api rootProject.ext.okhttp3_mockwebserver
+    api rootProject.ext.retrofit2
+    api rootProject.ext.retrofit2_adapter_rxjava2
+    api rootProject.ext.retrofit2_converter_gson
 }
 
 ext {
@@ -62,7 +67,7 @@ ext {
     siteUrl = 'https://github.com/Guang1234567/RxBase'
     gitUrl = 'https://github.com/Guang1234567/RxBase.git'
 
-    libraryVersion = '1.1.1'
+    libraryVersion = '1.1.2'
 
     developerId = 'GG1234567'
     developerName = 'GG1234567'

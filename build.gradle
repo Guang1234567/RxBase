@@ -100,4 +100,10 @@ ext {
 
     // If you want to use Android Lifecycle for providers
     rxlifecycle_android_lifecycle = 'com.trello.rxlifecycle2:rxlifecycle-android-lifecycle:2.2.1'
+
+    okhttp3 = "com.squareup.okhttp3:okhttp:3.10.0"
+    okhttp3_mockwebserver = "com.squareup.okhttp3:mockwebserver:3.10.0"
+    retrofit2 = "com.squareup.retrofit2:retrofit:2.3.0"
+    retrofit2_adapter_rxjava2 = "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
+    retrofit2_converter_gson = "com.squareup.retrofit2:converter-gson:2.3.0"
 }
