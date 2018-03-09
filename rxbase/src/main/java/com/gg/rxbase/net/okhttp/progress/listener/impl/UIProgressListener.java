@@ -1,10 +1,10 @@
 package com.gg.rxbase.net.okhttp.progress.listener.impl;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
-import com.gg.rxbase.gc.WeakReferenceHandler;
-import com.gg.rxbase.log.Log;
 import com.gg.rxbase.net.okhttp.progress.listener.IProgressListener;
 
 import java.io.Serializable;
@@ -13,26 +13,28 @@ public abstract class UIProgressListener implements IProgressListener {
     public final static String LOG_TAG = "UIProgressListener";
     private boolean mIsFirst = false;
 
-    private final static class UiHandler extends WeakReferenceHandler<UIProgressListener> {
+    private final static class UiHandler extends Handler {
+        private UIProgressListener mProgressListener;
 
         public UiHandler(UIProgressListener progressListener) {
-            super(progressListener, Looper.getMainLooper());
+            super(Looper.getMainLooper());
+            mProgressListener  = progressListener;
         }
 
         @Override
-        protected void handleMessage(UIProgressListener progressListener, Message msg) {
+        public void handleMessage(Message msg) {
             ProgressModel progressModel = (ProgressModel) msg.obj;
             switch (msg.what) {
                 case MSG_START: {
-                    progressListener.onStart(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
+                    mProgressListener.onStart(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
                     break;
                 }
                 case MSG_UPDATE: {
-                    progressListener.onProgress(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
+                    mProgressListener.onProgress(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
                     break;
                 }
                 case MSG_FINISH: {
-                    progressListener.onFinish(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
+                    mProgressListener.onFinish(progressModel.getCurrentBytes(), progressModel.getContentLength(), progressModel.isDone());
                     break;
                 }
                 default: {

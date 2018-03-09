@@ -25,7 +25,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation rootProject.ext.supportAnnotations
+    compileOnly rootProject.ext.supportAnnotations
     testImplementation rootProject.ext.junit
     androidTestImplementation rootProject.ext.supportTestRunner
     androidTestImplementation rootProject.ext.supportTestEspresso
@@ -67,7 +67,7 @@ ext {
     siteUrl = 'https://github.com/Guang1234567/RxBase'
     gitUrl = 'https://github.com/Guang1234567/RxBase.git'
 
-    libraryVersion = '1.1.2'
+    libraryVersion = '1.1.1'
 
     developerId = 'GG1234567'
     developerName = 'GG1234567'

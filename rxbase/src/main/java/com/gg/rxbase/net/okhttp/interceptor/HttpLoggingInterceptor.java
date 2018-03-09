@@ -15,7 +15,8 @@
  */
 package com.gg.rxbase.net.okhttp.interceptor;
 
-import com.gg.rxbase.log.Log;
+import android.util.Log;
+
 import com.gg.rxbase.net.okhttp.OkHttpClientGenerator;
 
 import java.io.IOException;

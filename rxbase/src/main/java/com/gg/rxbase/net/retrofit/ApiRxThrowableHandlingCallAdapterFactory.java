@@ -17,7 +17,7 @@ package com.gg.rxbase.net.retrofit;
 
 import android.content.Context;
 
-import com.gg.rxbase.os.NetWorkUtils;
+import com.gg.rxbase.net.NetWorkUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

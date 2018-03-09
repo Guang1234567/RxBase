@@ -25,13 +25,14 @@ import io.reactivex.functions.Function;
  */
 
 public abstract class RxBaseActivity extends NaviAppCompatActivity implements LifecycleProvider<ActivityEvent> {
+
     private final NaviComponent naviComponent = this;
 
     private final LifecycleProvider<ActivityEvent> provider
             = NaviLifecycle.createActivityLifecycleProvider(naviComponent);
 
     public RxBaseActivity() {
-        naviObserve(Event.CREATE).subscribe(new Consumer<Bundle>() {
+        /*naviObserve(Event.CREATE).subscribe(new Consumer<Bundle>() {
             @Override
             public void accept(Bundle bundle) throws Exception {
                 //setContentView(R.layout.main);
@@ -55,7 +56,7 @@ public abstract class RxBaseActivity extends NaviAppCompatActivity implements Li
                     @Override
                     public void accept(Long count) {
                     }
-                });
+                });*/
     }
 
     @NonNull

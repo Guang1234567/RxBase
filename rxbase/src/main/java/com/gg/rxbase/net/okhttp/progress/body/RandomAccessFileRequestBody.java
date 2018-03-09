@@ -1,6 +1,7 @@
 package com.gg.rxbase.net.okhttp.progress.body;
 
-import com.gg.rxbase.log.Log;
+import android.util.Log;
+
 import com.gg.rxbase.net.okhttp.progress.listener.IProgressListener;
 import com.joanzapata.utils.Strings;
 

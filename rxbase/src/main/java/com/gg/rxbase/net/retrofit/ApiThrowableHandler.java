@@ -1,8 +1,8 @@
 package com.gg.rxbase.net.retrofit;
 
 import android.net.ParseException;
+import android.util.Log;
 
-import com.gg.rxbase.log.Log;
 import com.google.gson.JsonParseException;
 
 import org.apache.http.conn.ConnectTimeoutException;
