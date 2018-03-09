@@ -81,7 +81,7 @@ ext {
     supportWcdb = 'com.tencent.wcdb:wcdb-android:1.0.5'
     sqlbrite_wcdb_integration = 'android.arch.persistence.db.wcdb:sqlbrite-wcdb-integration:1.1.1'
 
-    //https://developer.android.com/topic/libraries/architecture/adding-components.html
+    // https://developer.android.com/topic/libraries/architecture/adding-components.html
     androidArchViewModel = 'android.arch.lifecycle:viewmodel:1.1.0'
 
     rxlifecycle = 'com.trello.rxlifecycle2:rxlifecycle:2.2.1'
