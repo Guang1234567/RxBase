@@ -52,6 +52,7 @@ dependencies {
     api rootProject.ext.retrofit2
     api rootProject.ext.retrofit2_adapter_rxjava2
     api rootProject.ext.retrofit2_converter_gson
+    api rootProject.ext.multitype
 }
 
 ext {

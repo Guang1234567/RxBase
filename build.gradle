@@ -4,7 +4,7 @@ buildscript {
 
     ext.versions = [
             'minSdk'    : 15,
-            'compileSdk': 27,
+            'compileSdk': 26,
             'kotlin'    : '1.1.60',
             'lint'      : '26.0.1'
     ]
@@ -42,8 +42,8 @@ task clean(type: Delete) {
 
 ext {
     // Android dependencies.
-    supportV7 = 'com.android.support:appcompat-v7:27.1.0'
-    supportAnnotations = 'com.android.support:support-annotations:27.1.0'
+    supportV7 = 'com.android.support:appcompat-v7:26.0.2'
+    supportAnnotations = 'com.android.support:support-annotations:26.0.2'
     supportTestRunner = 'com.android.support.test:runner:0.5'
     supportTestEspresso = 'com.android.support.test.espresso:espresso-core:3.0.1'
 
@@ -106,4 +106,6 @@ ext {
     retrofit2 = "com.squareup.retrofit2:retrofit:2.3.0"
     retrofit2_adapter_rxjava2 = "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
     retrofit2_converter_gson = "com.squareup.retrofit2:converter-gson:2.3.0"
+
+    multitype = "me.drakeet.multitype:multitype:3.4.4"
 }
