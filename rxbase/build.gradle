@@ -68,7 +68,7 @@ ext {
     siteUrl = 'https://github.com/Guang1234567/RxBase'
     gitUrl = 'https://github.com/Guang1234567/RxBase.git'
 
-    libraryVersion = '1.1.3'
+    libraryVersion = '1.1.4'
 
     developerId = 'GG1234567'
     developerName = 'GG1234567'

@@ -51,6 +51,8 @@ public class ApiResultTransformer<DATA, ERROR> implements ObservableTransformer<
                                     downstream.onError(exp);
                                 } else if (!isConsume) {
                                     downstream.onError(e);
+                                } else {
+                                    onComplete();
                                 }
                             }
                         } else {

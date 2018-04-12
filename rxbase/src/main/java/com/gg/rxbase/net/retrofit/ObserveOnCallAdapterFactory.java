@@ -24,11 +24,15 @@ import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
 
-public class ObserveOnMainCallAdapterFactory extends CallAdapter.Factory {
+public class ObserveOnCallAdapterFactory extends CallAdapter.Factory {
     final Scheduler scheduler;
 
-    ObserveOnMainCallAdapterFactory(Scheduler scheduler) {
+    private ObserveOnCallAdapterFactory(Scheduler scheduler) {
         this.scheduler = scheduler;
+    }
+
+    public static ObserveOnCallAdapterFactory create(Scheduler scheduler) {
+        return new ObserveOnCallAdapterFactory(scheduler);
     }
 
     @Override
