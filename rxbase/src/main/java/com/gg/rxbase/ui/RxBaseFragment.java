@@ -14,7 +14,7 @@ import com.trello.rxlifecycle2.navi.NaviLifecycle;
 import io.reactivex.Observable;
 
 /**
- * @author Administrator
+ * @author Guang1234567
  * @date 2018/3/9 15:52
  */
 

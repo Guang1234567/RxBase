@@ -41,16 +41,12 @@ public final class ApiResult<DATA, ERROR> {
     private ERROR error;
 
     public boolean isOk() {
-        ApiOkCode code = getOkCode();
-        return code != null && !code.equals(ApiOkCode.NOT_OK);
+        ApiCode code = getApiCode();
+        return ApiCode.SUCCESS.equals(code);
     }
 
-    public ApiOkCode getOkCode() {
-        return ApiOkCode.valueOf(code);
-    }
-
-    public ApiErrorCode getErrorCode() {
-        return ApiErrorCode.valueOf(code);
+    public ApiCode getApiCode() {
+        return ApiCode.valueOf(code);
     }
 
     public String getMsg() {

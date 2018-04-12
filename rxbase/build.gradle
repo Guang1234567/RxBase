@@ -63,12 +63,12 @@ ext {
     libraryName = 'rxbase'
     artifact = 'rxbase'
 
-    libraryDescription = 'A wrapper for Facebook Native Like Button (LikeView) on Android'
+    libraryDescription = 'Some common rx lib collection on Android'
 
     siteUrl = 'https://github.com/Guang1234567/RxBase'
     gitUrl = 'https://github.com/Guang1234567/RxBase.git'
 
-    libraryVersion = '1.1.1'
+    libraryVersion = '1.1.3'
 
     developerId = 'GG1234567'
     developerName = 'GG1234567'

@@ -110,5 +110,4 @@ public abstract class BaseRecyclerViewAdapterWrapper<A extends RecyclerView.Adap
         return mInnerAdapter.getItemCount();
     }
 
-
 }

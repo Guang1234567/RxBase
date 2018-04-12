@@ -1,25 +1,31 @@
 package com.gg.rxbase.ui;
 
-import android.support.v7.widget.RecyclerView;
+import android.support.annotation.NonNull;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import me.drakeet.multitype.MultiTypeAdapter;
+
 /**
- * @author Administrator
+ * @author Guang1234567
  * @date 2018/3/30 16:36
  */
 
-public abstract class ArrayRecyclerViewAdapter<T, A extends RecyclerView.Adapter> extends BaseRecyclerViewAdapterWrapper<A> {
+public class ArrayMultiTypeAdapterWrapper<T, A extends MultiTypeAdapter> extends BaseRecyclerViewAdapterWrapper<A> {
 
     private List<T> mItems;
 
-    private boolean mNotifyOnChange = true;
+    private boolean mNotifyOnChange;
 
-    public ArrayRecyclerViewAdapter(A adapter) {
+    public ArrayMultiTypeAdapterWrapper(@NonNull A adapter) {
         super(adapter);
+
+        mItems = (List<T>) adapter.getItems();
+        mNotifyOnChange = true;
     }
 
     public void changeAll(List<T> newData) {
@@ -27,6 +33,7 @@ public abstract class ArrayRecyclerViewAdapter<T, A extends RecyclerView.Adapter
             newData = new LinkedList<>();
         }
         mItems = newData;
+        getInnerAdapter().setItems(newData);
         if (mNotifyOnChange)
             getInnerAdapter().notifyDataSetChanged();
     }
@@ -96,17 +103,24 @@ public abstract class ArrayRecyclerViewAdapter<T, A extends RecyclerView.Adapter
             getInnerAdapter().notifyItemChanged(updateIdx, payload);
     }
 
+    public void sort(@NonNull Comparator<? super T> comparator) {
+        Collections.sort(mItems, comparator);
+        if (mNotifyOnChange)
+            getInnerAdapter().notifyDataSetChanged();
+    }
+
     public void clear() {
         mItems.clear();
         if (mNotifyOnChange)
             getInnerAdapter().notifyDataSetChanged();
     }
 
-    public void beginBulkModify() {
+    public void beginBulkAction() {
         mNotifyOnChange = false;
     }
 
-    public void endBulkModify() {
+    public void endBulkAction() {
         mNotifyOnChange = true;
+        getInnerAdapter().notifyDataSetChanged();
     }
 }

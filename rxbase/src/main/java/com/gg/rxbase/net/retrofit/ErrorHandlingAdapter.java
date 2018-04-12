@@ -26,6 +26,8 @@ import retrofit2.CallAdapter;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
 
 /**
  * A sample showing a custom {@link CallAdapter} which adapts the built-in {@link Call} to a custom
@@ -39,44 +41,43 @@ public final class ErrorHandlingAdapter {
         /**
          * Called for [200, 300) responses.
          */
-        void success(MyCall<T> call, Response<T> response);
+        void success(Response<T> response);
 
         /**
          * Called for 401 responses.
          */
-        void unauthenticated(MyCall<T> call, Response<?> response);
+        void unauthenticated(Response<?> response);
 
         /**
          * Called for [400, 500) responses, except 401.
          */
-        void clientError(MyCall<T> call, Response<?> response);
+        void clientError(Response<?> response);
 
         /**
          * Called for [500, 600) response.
          */
-        void serverError(MyCall<T> call, Response<?> response);
+        void serverError(Response<?> response);
 
         /**
          * Called for network errors while making the call.
          */
-        void networkError(MyCall<T> call, IOException e);
+        void networkError(IOException e);
 
         /**
          * Called for unexpected errors while making the call.
          */
-        void unexpectedError(MyCall<T> call, Throwable t);
+        void unexpectedError(Throwable t);
     }
 
     interface MyCall<T> {
-        Call<T> getCall();
-
         void cancel();
 
         void enqueue(MyCallback<T> callback);
 
         MyCall<T> clone();
 
-        void execute(MyCallback<T> callback);
+        // Left as an exercise for the reader...
+        // TODO MyResponse<T> execute() throws MyHttpException;
     }
 
     public static class ErrorHandlingCallAdapterFactory extends CallAdapter.Factory {
@@ -129,11 +130,6 @@ public final class ErrorHandlingAdapter {
         }
 
         @Override
-        public Call<T> getCall() {
-            return call;
-        }
-
-        @Override
         public void cancel() {
             call.cancel();
         }
@@ -142,13 +138,34 @@ public final class ErrorHandlingAdapter {
         public void enqueue(final MyCallback<T> callback) {
             call.enqueue(new Callback<T>() {
                 @Override
-                public void onResponse(Call<T> call, final Response<T> response) {
-                    MyCallAdapter.this.onResponse(response, callback);
+                public void onResponse(Call<T> call, Response<T> response) {
+                    // TODO if 'callbackExecutor' is not null, the 'callback' methods should be executed
+                    // on that executor by submitting a Runnable. This is left as an exercise for the reader.
+
+                    int code = response.code();
+                    if (code >= 200 && code < 300) {
+                        callback.success(response);
+                    } else if (code == 401) {
+                        callback.unauthenticated(response);
+                    } else if (code >= 400 && code < 500) {
+                        callback.clientError(response);
+                    } else if (code >= 500 && code < 600) {
+                        callback.serverError(response);
+                    } else {
+                        callback.unexpectedError(new RuntimeException("Unexpected response " + response));
+                    }
                 }
 
                 @Override
-                public void onFailure(Call<T> call, final Throwable t) {
-                    MyCallAdapter.this.onFailure(t, callback);
+                public void onFailure(Call<T> call, Throwable t) {
+                    // TODO if 'callbackExecutor' is not null, the 'callback' methods should be executed
+                    // on that executor by submitting a Runnable. This is left as an exercise for the reader.
+
+                    if (t instanceof IOException) {
+                        callback.networkError((IOException) t);
+                    } else {
+                        callback.unexpectedError(t);
+                    }
                 }
             });
         }
@@ -157,58 +174,56 @@ public final class ErrorHandlingAdapter {
         public MyCall<T> clone() {
             return new MyCallAdapter<>(call.clone(), callbackExecutor);
         }
+    }
 
-        @Override
-        public void execute(final MyCallback<T> callback) {
-            try {
-                final Response<T> response = call.execute();
-                onResponse(response, callback);
-            } catch (final Throwable t) {
-                onFailure(t, callback);
-            }
-        }
+    interface HttpBinService {
+        @GET("/ip")
+        MyCall<Ip> getIp();
+    }
 
-        private void onResponse(final Response<T> response, final MyCallback<T> callback) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    int code = response.code();
-                    if (code >= 200 && code < 300) {
-                        callback.success(MyCallAdapter.this, response);
-                    } else if (code == 401) {
-                        callback.unauthenticated(MyCallAdapter.this, response);
-                    } else if (code >= 400 && code < 500) {
-                        callback.clientError(MyCallAdapter.this, response);
-                    } else if (code >= 500 && code < 600) {
-                        callback.serverError(MyCallAdapter.this, response);
-                    } else {
-                        callback.unexpectedError(MyCallAdapter.this, new RuntimeException("Unexpected response " + response));
-                    }
-                }
-            };
-            if (callbackExecutor != null) {
-                callbackExecutor.execute(r);
-            } else {
-                r.run();
-            }
-        }
+    static class Ip {
+        String origin;
+    }
 
-        private void onFailure(final Throwable t, final MyCallback<T> callback) {
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-                    if (t instanceof IOException) {
-                        callback.networkError(MyCallAdapter.this, (IOException) t);
-                    } else {
-                        callback.unexpectedError(MyCallAdapter.this, t);
-                    }
-                }
-            };
-            if (callbackExecutor != null) {
-                callbackExecutor.execute(r);
-            } else {
-                r.run();
+    public static void main(String... args) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://httpbin.org")
+                .addCallAdapterFactory(new ErrorHandlingCallAdapterFactory())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        HttpBinService service = retrofit.create(HttpBinService.class);
+        MyCall<Ip> ip = service.getIp();
+        ip.enqueue(new MyCallback<Ip>() {
+            @Override
+            public void success(Response<Ip> response) {
+                System.out.println("SUCCESS! " + response.body().origin);
             }
-        }
+
+            @Override
+            public void unauthenticated(Response<?> response) {
+                System.out.println("UNAUTHENTICATED");
+            }
+
+            @Override
+            public void clientError(Response<?> response) {
+                System.out.println("CLIENT ERROR " + response.code() + " " + response.message());
+            }
+
+            @Override
+            public void serverError(Response<?> response) {
+                System.out.println("SERVER ERROR " + response.code() + " " + response.message());
+            }
+
+            @Override
+            public void networkError(IOException e) {
+                System.err.println("NETWORK ERROR " + e.getMessage());
+            }
+
+            @Override
+            public void unexpectedError(Throwable t) {
+                System.err.println("FATAL ERROR " + t.getMessage());
+            }
+        });
     }
 }

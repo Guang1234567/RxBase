@@ -32,13 +32,15 @@ import retrofit2.Retrofit;
 
 public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factory {
     private final Context mContext;
-    private final ApiThrowableHandler mThrowableHandler;
     private final Scheduler mScheduler;
+
+    private final ApiResultTransformer mApiResultTransformer;
 
     private ApiRxThrowableHandlingCallAdapterFactory(Context context, ApiThrowableHandler throwableHandler, Scheduler scheduler) {
         mContext = context.getApplicationContext();
-        mThrowableHandler = throwableHandler;
         mScheduler = scheduler;
+
+        mApiResultTransformer = new ApiResultTransformer(throwableHandler);
     }
 
     public static ApiRxThrowableHandlingCallAdapterFactory create(Context context, ApiThrowableHandler errorHandler, Scheduler scheduler) {
@@ -67,26 +69,20 @@ public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factor
                 // Delegate to get the normal Observable...
                 Observable<?> o = delegate.adapt(call);
                 // ...and change it to send notifications to the observer on the specified scheduler.
+                if (mScheduler != null) {
+                    o = o.observeOn(mScheduler);
+                }
+                // handle some commom exception here
                 o = o.doOnSubscribe(new Consumer<Disposable>() {
                     @Override
                     public void accept(Disposable disposable) throws Exception {
                         if (!NetWorkUtils.isConnectedByState(mContext)) {
                             //订阅此Observable时, 如果网络不可用,则主动抛出下面的异常
-                            throw new ApiException(ApiErrorCode.ERROR_NO_INTERNET, "network unavailable");
+                            throw new ApiException(ApiCode.ERROR_NO_INTERNET, "network unavailable");
                         }
                     }
                 });
-                if (mScheduler != null) {
-                    o = o.observeOn(mScheduler); //使 doOnError 在指定的线程中运行
-                }
-                return o.doOnError(new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (mThrowableHandler != null) {
-                            mThrowableHandler.accept(throwable);
-                        }
-                    }
-                });
+                return o.compose(mApiResultTransformer);
             }
 
             @Override

@@ -6,19 +6,19 @@ package com.gg.rxbase.net.retrofit;
  */
 
 public class ApiException extends RuntimeException {
-    private ApiErrorCode mErrorCode;
+    private ApiCode mErrorCode;
 
-    public ApiException(ApiErrorCode code, String msg) {
+    public ApiException(ApiCode code, String msg) {
         super(msg);
         this.mErrorCode = code;
     }
 
-    public ApiException(ApiErrorCode code, String msg, Throwable cause) {
+    public ApiException(ApiCode code, String msg, Throwable cause) {
         super(msg, cause);
         mErrorCode = code;
     }
 
-    public ApiErrorCode getErrorCode() {
+    public ApiCode getErrorCode() {
         return mErrorCode;
     }
 
