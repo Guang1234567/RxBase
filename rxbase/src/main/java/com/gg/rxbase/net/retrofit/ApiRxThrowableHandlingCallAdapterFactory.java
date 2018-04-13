@@ -22,8 +22,12 @@ import com.gg.rxbase.net.NetWorkUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
+import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import retrofit2.Call;
@@ -36,7 +40,7 @@ public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factor
 
     private final ApiResultTransformer mApiResultTransformer;
 
-    private ApiRxThrowableHandlingCallAdapterFactory(Context context, ApiThrowableHandler throwableHandler, Scheduler scheduler) {
+    private ApiRxThrowableHandlingCallAdapterFactory(Context context, Consumer<Throwable> throwableHandler, Scheduler scheduler) {
         mContext = context.getApplicationContext();
         mScheduler = scheduler;
 
@@ -53,27 +57,35 @@ public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factor
 
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
-        if (getRawType(returnType) != Observable.class) {
-            return null; // Ignore non-Observable types.
+        Class<?> rawType = getRawType(returnType);
+
+        final boolean isObservable = rawType == Observable.class;
+        final boolean isFlowable = rawType == Flowable.class;
+        final boolean isSingle = rawType == Single.class;
+        final boolean isMaybe = rawType == Maybe.class;
+        final boolean isCompletable = rawType == Completable.class;
+        if (!isObservable
+                && !isFlowable
+                && !isSingle
+                && !isMaybe
+                && !isCompletable) {
+            return null;
         }
 
         // Look up the next call adapter which would otherwise be used if this one was not present.
         //noinspection unchecked returnType checked above to be Observable.
-        final CallAdapter<Object, Observable<?>> delegate =
-                (CallAdapter<Object, Observable<?>>) retrofit.nextCallAdapter(this, returnType,
+        final CallAdapter<Object, ?> delegate =
+                (CallAdapter<Object, ?>) retrofit.nextCallAdapter(this, returnType,
                         annotations);
 
         return new CallAdapter<Object, Object>() {
             @Override
             public Object adapt(Call<Object> call) {
                 // Delegate to get the normal Observable...
-                Observable<?> o = delegate.adapt(call);
-                // ...and change it to send notifications to the observer on the specified scheduler.
-                if (mScheduler != null) {
-                    o = o.observeOn(mScheduler);
-                }
-                // handle some commom exception here
-                o = o.doOnSubscribe(new Consumer<Disposable>() {
+                Object o = delegate.adapt(call);
+
+                // ...and change it to send notifications to the observer on the specified mScheduler.
+                Consumer<Disposable> consumer = new Consumer<Disposable>() {
                     @Override
                     public void accept(Disposable disposable) throws Exception {
                         if (!NetWorkUtils.isConnectedByState(mContext)) {
@@ -81,8 +93,21 @@ public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factor
                             throw new ApiException(ApiCode.ERROR_NO_INTERNET, "network unavailable");
                         }
                     }
-                });
-                return o.compose(mApiResultTransformer);
+                };
+
+                if (isObservable) {
+                    return ((Observable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                } else if (isFlowable) {
+                    return ((Flowable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                } else if (isSingle) {
+                    return ((Single) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                } else if (isMaybe) {
+                    return ((Maybe) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                } else if (isCompletable) {
+                    return ((Completable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                } else {
+                    return o;
+                }
             }
 
             @Override

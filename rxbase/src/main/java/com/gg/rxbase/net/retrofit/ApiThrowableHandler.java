@@ -11,6 +11,7 @@ import org.json.JSONException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
+import io.reactivex.functions.Consumer;
 import retrofit2.HttpException;
 
 /**
@@ -18,17 +19,15 @@ import retrofit2.HttpException;
  * @date 2017/7/6 20:15
  */
 
-public interface ApiThrowableHandler {
+public interface ApiThrowableHandler extends Consumer<Throwable> {
     String TAG = "ApiThrowableHandler";
-
-    boolean accept(Throwable e) throws Throwable;
 
     /**
      * default implement
      */
     ApiThrowableHandler DEFAULT = new ApiThrowableHandler() {
         @Override
-        public boolean accept(Throwable e) throws Throwable {
+        public void accept(Throwable e) throws Exception {
             Log.e(TAG, "(DEFAULT) # accept : ", e);
             if (e instanceof HttpException) {             //HTTP错误, 如配置了 Https 但证书不匹配?
                 // handle
@@ -40,7 +39,7 @@ public interface ApiThrowableHandler {
                     || e instanceof SocketTimeoutException
                     || e instanceof ConnectTimeoutException) { // "连接失败"
                 // handle
-            } else if (e instanceof ApiException) {
+            } else if (e instanceof ApiException) { // 内部协议错误
                 ApiException apiException = (ApiException) e;
                 ApiCode code = apiException.getErrorCode();
                 switch (code) {
@@ -64,9 +63,8 @@ public interface ApiThrowableHandler {
                         break;
                 }
             } else {
-                return false;
+                // handle
             }
-            return true;
         }
     };
 }
