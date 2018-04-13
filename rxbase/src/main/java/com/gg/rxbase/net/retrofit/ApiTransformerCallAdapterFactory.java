@@ -15,45 +15,56 @@
  */
 package com.gg.rxbase.net.retrofit;
 
-import android.content.Context;
-
-import com.gg.rxbase.net.NetWorkUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableTransformer;
 import io.reactivex.Flowable;
+import io.reactivex.FlowableTransformer;
 import io.reactivex.Maybe;
+import io.reactivex.MaybeTransformer;
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
+import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import io.reactivex.SingleTransformer;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Retrofit;
 
-public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factory {
-    private final Context mContext;
-    private final Scheduler mScheduler;
+public class ApiTransformerCallAdapterFactory extends CallAdapter.Factory {
 
-    private final ApiResultTransformer mApiResultTransformer;
+    private final ObservableTransformer mObservableTransformer;
+    private final FlowableTransformer mFlowableTransformer;
+    private final SingleTransformer mSingleTransformer;
+    private final MaybeTransformer mMaybeTransformer;
+    private final CompletableTransformer mCompletableTransformer;
 
-    private ApiRxThrowableHandlingCallAdapterFactory(Context context, Consumer<Throwable> throwableHandler, Scheduler scheduler) {
-        mContext = context.getApplicationContext();
-        mScheduler = scheduler;
+    private ApiTransformerCallAdapterFactory(ObservableTransformer observableTransformer,
+                                             FlowableTransformer flowableTransformer,
+                                             SingleTransformer singleTransformer,
+                                             MaybeTransformer maybeTransformer,
+                                             CompletableTransformer completableTransformer) {
 
-        mApiResultTransformer = new ApiResultTransformer(throwableHandler);
+        mObservableTransformer = observableTransformer;
+        mFlowableTransformer = flowableTransformer;
+        mSingleTransformer = singleTransformer;
+        mMaybeTransformer = maybeTransformer;
+        mCompletableTransformer = completableTransformer;
     }
 
-    public static ApiRxThrowableHandlingCallAdapterFactory create(Context context, ApiThrowableHandler errorHandler, Scheduler scheduler) {
-        return new ApiRxThrowableHandlingCallAdapterFactory(context, errorHandler, scheduler);
+    public static ApiTransformerCallAdapterFactory create(ObservableTransformer observableTransformer,
+                                                          FlowableTransformer flowableTransformer,
+                                                          SingleTransformer singleTransformer,
+                                                          MaybeTransformer maybeTransformer,
+                                                          CompletableTransformer completableTransformer) {
+        return new ApiTransformerCallAdapterFactory(observableTransformer,
+                flowableTransformer,
+                singleTransformer,
+                maybeTransformer,
+                completableTransformer);
     }
 
-    public static ApiRxThrowableHandlingCallAdapterFactory create(Context context, ApiThrowableHandler errorHandler) {
-        return create(context, errorHandler, null);
-    }
 
     @Override
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
@@ -84,27 +95,17 @@ public class ApiRxThrowableHandlingCallAdapterFactory extends CallAdapter.Factor
                 // Delegate to get the normal Observable...
                 Object o = delegate.adapt(call);
 
-                // ...and change it to send notifications to the observer on the specified mScheduler.
-                Consumer<Disposable> consumer = new Consumer<Disposable>() {
-                    @Override
-                    public void accept(Disposable disposable) throws Exception {
-                        if (!NetWorkUtils.isConnectedByState(mContext)) {
-                            //订阅此Observable时, 如果网络不可用,则主动抛出下面的异常
-                            throw new ApiException(ApiCode.ERROR_NO_INTERNET, "network unavailable");
-                        }
-                    }
-                };
-
+                // ...and change it to send notifications to the compose the specified mXXXTransformer.
                 if (isObservable) {
-                    return ((Observable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                    return ((Observable) o).compose(mObservableTransformer);
                 } else if (isFlowable) {
-                    return ((Flowable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                    return ((Flowable) o).compose(mFlowableTransformer);
                 } else if (isSingle) {
-                    return ((Single) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                    return ((Single) o).compose(mSingleTransformer);
                 } else if (isMaybe) {
-                    return ((Maybe) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                    return ((Maybe) o).compose(mMaybeTransformer);
                 } else if (isCompletable) {
-                    return ((Completable) o).observeOn(mScheduler).doOnSubscribe(consumer).compose(mApiResultTransformer);
+                    return ((Completable) o).compose(mCompletableTransformer);
                 } else {
                     return o;
                 }
